@@ -4,7 +4,7 @@
 |--------------|
 | José Wilson Alves de Souza |
 |  |
-|  |
+| Alex Júlio de Brito |
 |  |
 |  |
 |  |
