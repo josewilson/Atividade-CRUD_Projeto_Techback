@@ -31,4 +31,10 @@ public class UsuarioDTO {
     private String email;
 
     private Set<String> roles;
+
+    // Se você precisar de métodos extras, como o toString, podem ser adicionados aqui
+    // @Override
+    // public String toString() {
+    //     return "UsuarioDTO [id=" + id + ", username=" + username + ", email=" + email + "]";
+    // }
 }
