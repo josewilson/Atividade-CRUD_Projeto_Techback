@@ -7,7 +7,7 @@
 | Ana Julya Rodrigues Dionizio |
 | Alex Júlio de Brito          |
 | Everton Fernandes S. Da Silva|
-|                              |
+| Silvano Bernardino da S.Filho|
 |                              |
 |                              |
 |                              |
