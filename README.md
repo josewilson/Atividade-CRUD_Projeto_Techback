@@ -132,17 +132,17 @@ A aplicação estará disponível em: `http://localhost:8080`
 ### Documentação da API
 
 A documentação OpenAPI/Swagger está disponível em:
-`http://localhost:8080/swagger-ui.html`
+`http://localhost:8080/swagger-ui/index.html)`
 
 ### Console H2
 
 O console do banco H2 está disponível em:
-`http://localhost:8080/h2`
+`http://localhost:8080/h2/login`
 
 **Configurações de conexão:**
 - URL: `jdbc:h2:file:~/teckback20262`
 - User Name: `sa`
-- Password: `password`
+- Password: 
 
 ## 📊 Métricas de Qualidade
 
