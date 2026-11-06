@@ -200,4 +200,12 @@ class FuncionarioControllerTest {
                 .andExpect(jsonPath("$.nome").value("João Silva"))
                 .andExpect(header().exists("Location"));
     }
+
+    @Test
+    @DisplayName("Usuário sem papel ADMIN recebe 403")
+    @org.springframework.security.test.context.support.WithMockUser(roles = "USER")
+    void deveNegarAcessoParaUsuarioComum() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/funcionarios"))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.status().isForbidden());
+    }
 }

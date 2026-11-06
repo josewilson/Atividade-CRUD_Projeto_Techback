@@ -12,6 +12,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 
+@org.springframework.security.access.prepost.PreAuthorize("hasRole('ADMIN')")
 @RestController
 @RequestMapping("/funcionarios")
 @RequiredArgsConstructor
