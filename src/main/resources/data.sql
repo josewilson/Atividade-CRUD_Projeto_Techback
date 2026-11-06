@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS filmes (
     );
 
 -- Inserção de dados iniciais para Usuarios (sem campo version)
-INSERT INTO usuarios (username, password, email, nome_completo, data_nascimento, perfil, criado_em, atualizado_em) VALUES ('admin', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin@example.com', 'Admin User', '2000-01-01', 'ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+INSERT INTO usuarios (username, password, email, nome_completo, data_nascimento, perfil, criado_em, atualizado_em) VALUES ('admin', '$2a$10$MYqGUS91AVpzGZ/zYQzQuu9oytpvvXyJ3bW8fMWaV5mDpX0B0Rygu', 'admin@example.com', 'Admin User', '2000-01-01', 'ADMIN', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 -- Inserção de dados iniciais para Funcionarios
 INSERT INTO funcionarios (nome, cargo) VALUES ('João Silva', 'Desenvolvedor');
