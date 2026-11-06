@@ -8,7 +8,7 @@ Projeto da disciplina *Tecnologias para Backend (Spring Boot)* — UNIESP, sobre
 ![Spring Security](https://img.shields.io/badge/Spring%20Security-JWT-6DB33F?logo=springsecurity&logoColor=white)
 ![H2](https://img.shields.io/badge/Database-H2-1021FF)
 ![Maven](https://img.shields.io/badge/Build-Maven-C71A36?logo=apachemaven&logoColor=white)
-![Tests](https://img.shields.io/badge/tests-96%20passing-brightgreen)
+[![CI](https://github.com/josewilson/Atividade-CRUD_Projeto_Techback/actions/workflows/ci.yml/badge.svg)](https://github.com/josewilson/Atividade-CRUD_Projeto_Techback/actions/workflows/ci.yml)
 ![OpenAPI](https://img.shields.io/badge/OpenAPI-Swagger%20UI-85EA2D?logo=swagger&logoColor=black)
 
 ## ✨ Funcionalidades
