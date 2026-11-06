@@ -22,12 +22,20 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@org.springframework.security.test.context.support.WithMockUser(roles = "ADMIN")
 @WebMvcTest(FilmeController.class)
+@org.springframework.context.annotation.Import(br.uniesp.si.techback.security.SecurityConfig.class)
 @DisplayName("Testes do FilmeController")
 class FilmeControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private br.uniesp.si.techback.security.JwtUtils jwtUtils;
+
+    @MockBean
+    private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
 
     @MockBean
     private FilmeService filmeService;

@@ -24,12 +24,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UsuarioController.class)
+@org.springframework.context.annotation.Import(br.uniesp.si.techback.security.SecurityConfig.class)
 @WithMockUser(username = "admin", roles = {"ADMIN"})
 @DisplayName("Testes do UsuarioController")
 class UsuarioControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private br.uniesp.si.techback.security.JwtUtils jwtUtils;
+
+    @MockBean
+    private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
 
     @MockBean
     private UsuarioService usuarioService;
@@ -98,7 +105,7 @@ class UsuarioControllerTest {
 
         mockMvc.perform(post("/usuarios")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(usuarioDTO)))
+                        .content(json(usuarioDTO)))
                 .andExpect(status().isCreated())
                 .andExpect(header().exists("Location"))
                 .andExpect(jsonPath("$.id").value(1L))
@@ -125,7 +132,7 @@ class UsuarioControllerTest {
 
         mockMvc.perform(put("/usuarios/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(usuarioAtualizadoDTO)))
+                        .content(json(usuarioAtualizadoDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("updateduser"));
     }
@@ -145,7 +152,7 @@ class UsuarioControllerTest {
 
         mockMvc.perform(put("/usuarios/999")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(usuarioDTO)))
+                        .content(json(usuarioDTO)))
                 .andExpect(status().isNotFound());
     }
 
@@ -156,5 +163,12 @@ class UsuarioControllerTest {
 
         mockMvc.perform(delete("/usuarios/999"))
                 .andExpect(status().isNotFound());
+    }
+
+    // password é WRITE_ONLY no DTO; reinjeta a senha ao montar o corpo da requisição
+    private String json(UsuarioDTO dto) throws Exception {
+        var node = (com.fasterxml.jackson.databind.node.ObjectNode) objectMapper.valueToTree(dto);
+        node.put("password", "senha123");
+        return node.toString();
     }
 }

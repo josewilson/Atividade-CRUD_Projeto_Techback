@@ -1,114 +1,46 @@
 package br.uniesp.si.techback.service;
 
 import br.uniesp.si.techback.dto.FuncionarioDTO;
-import br.uniesp.si.techback.model.Funcionario;
+import br.uniesp.si.techback.mapper.FuncionarioMapper;
 import br.uniesp.si.techback.repository.FuncionarioRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class FuncionarioService {
 
     private final FuncionarioRepository funcionarioRepository;
+    private final FuncionarioMapper funcionarioMapper;
 
     public List<FuncionarioDTO> listar() {
-        log.info("Listando todos os funcionários");
-        List<Funcionario> funcionarios = funcionarioRepository.findAll();
-        log.debug("Total de funcionários encontrados: {}", funcionarios.size());
-
-        return funcionarios.stream()
-                .map(this::converterParaDTO)
-                .toList();
+        return funcionarioRepository.findAll().stream().map(funcionarioMapper::toDTO).toList();
     }
 
     public FuncionarioDTO buscarPorId(Long id) {
-        try {
-            log.info("Buscando funcionário com ID: {}", id);
-
-            Funcionario funcionario = funcionarioRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Funcionário não encontrado com ID: " + id));
-
-            log.debug("Funcionário encontrado: {}", funcionario);
-            return converterParaDTO(funcionario);
-
-        } catch (Exception e) {
-            log.error("Erro ao buscar funcionário com ID {}: {}", id, e.getMessage(), e);
-            throw e;
-        }
+        return funcionarioRepository.findById(id)
+                .map(funcionarioMapper::toDTO)
+                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado com o ID: " + id));
     }
 
-    public FuncionarioDTO salvar(FuncionarioDTO funcionarioDTO) {
-        try {
-            log.info("Salvando novo funcionário: {}", funcionarioDTO.getNome());
-
-            Funcionario funcionario = converterParaEntidade(funcionarioDTO);
-            Funcionario funcionarioSalvo = funcionarioRepository.save(funcionario);
-
-            log.info("Funcionário salvo com sucesso. ID: {}", funcionarioSalvo.getId());
-            return converterParaDTO(funcionarioSalvo);
-
-        } catch (Exception e) {
-            log.error("Erro ao salvar funcionário: {}", e.getMessage(), e);
-            throw e;
-        }
+    public FuncionarioDTO salvar(FuncionarioDTO dto) {
+        return funcionarioMapper.toDTO(funcionarioRepository.save(funcionarioMapper.toEntity(dto)));
     }
 
-    public FuncionarioDTO atualizar(Long id, FuncionarioDTO funcionarioDTO) {
-        try {
-            log.info("Atualizando funcionário com ID {}: {}", id, funcionarioDTO);
-
-            Funcionario funcionarioExistente = funcionarioRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Funcionário não encontrado com ID: " + id));
-
-            funcionarioExistente.setNome(funcionarioDTO.getNome());
-            funcionarioExistente.setCargo(funcionarioDTO.getCargo());
-
-            Funcionario funcionarioAtualizado = funcionarioRepository.save(funcionarioExistente);
-
-            log.debug("Funcionário ID {} atualizado com sucesso", id);
-            return converterParaDTO(funcionarioAtualizado);
-
-        } catch (Exception e) {
-            log.error("Erro ao atualizar funcionário ID {}: {}", id, e.getMessage(), e);
-            throw e;
-        }
+    public FuncionarioDTO atualizar(Long id, FuncionarioDTO dto) {
+        funcionarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Falha ao atualizar: funcionário não encontrado com o ID: " + id));
+        var entidade = funcionarioMapper.toEntity(dto);
+        entidade.setId(id);
+        return funcionarioMapper.toDTO(funcionarioRepository.save(entidade));
     }
 
     public void excluir(Long id) {
-        try {
-            log.info("Excluindo funcionário com ID: {}", id);
-
-            Funcionario funcionario = funcionarioRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Funcionário não encontrado com ID: " + id));
-
-            funcionarioRepository.delete(funcionario);
-
-            log.debug("Funcionário com ID {} excluído com sucesso", id);
-
-        } catch (Exception e) {
-            log.error("Erro ao excluir funcionário com ID {}: {}", id, e.getMessage(), e);
-            throw e;
+        if (!funcionarioRepository.existsById(id)) {
+            throw new RuntimeException("Falha ao excluir: funcionário não encontrado com o ID: " + id);
         }
-    }
-
-    private FuncionarioDTO converterParaDTO(Funcionario funcionario) {
-        FuncionarioDTO dto = new FuncionarioDTO();
-        dto.setId(funcionario.getId());
-        dto.setNome(funcionario.getNome());
-        dto.setCargo(funcionario.getCargo());
-        return dto;
-    }
-
-    private Funcionario converterParaEntidade(FuncionarioDTO funcionarioDTO) {
-        Funcionario funcionario = new Funcionario();
-        funcionario.setId(funcionarioDTO.getId());
-        funcionario.setNome(funcionarioDTO.getNome());
-        funcionario.setCargo(funcionarioDTO.getCargo());
-        return funcionario;
+        funcionarioRepository.deleteById(id);
     }
 }

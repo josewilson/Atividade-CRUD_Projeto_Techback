@@ -34,6 +34,8 @@ class UsuarioRepositoryTest {
                 .username("testuser")
                 .password("password123")
                 .email("test@example.com")
+                .nomeCompleto("Test User").dataNascimento(java.time.LocalDate.of(2000, 1, 1)).perfil(Usuario.Perfil.USER)
+                .criadoEm(java.time.LocalDateTime.now()).atualizadoEm(java.time.LocalDateTime.now())
                 .roles(Set.of("USER"))
                 .build();
     }
@@ -79,6 +81,8 @@ class UsuarioRepositoryTest {
                 .username("user2")
                 .password("pass2")
                 .email("user2@example.com")
+                .nomeCompleto("User Two").dataNascimento(java.time.LocalDate.of(2000, 1, 1)).perfil(Usuario.Perfil.USER)
+                .criadoEm(java.time.LocalDateTime.now()).atualizadoEm(java.time.LocalDateTime.now())
                 .roles(Set.of("USER"))
                 .build();
         entityManager.persistAndFlush(usuario2);
@@ -122,6 +126,8 @@ class UsuarioRepositoryTest {
                 .username("user2")
                 .password("pass2")
                 .email("user2@example.com")
+                .nomeCompleto("User Two").dataNascimento(java.time.LocalDate.of(2000, 1, 1)).perfil(Usuario.Perfil.USER)
+                .criadoEm(java.time.LocalDateTime.now()).atualizadoEm(java.time.LocalDateTime.now())
                 .roles(Set.of("USER"))
                 .build();
         entityManager.persistAndFlush(usuario2);

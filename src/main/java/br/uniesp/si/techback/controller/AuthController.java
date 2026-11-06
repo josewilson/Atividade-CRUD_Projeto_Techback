@@ -43,7 +43,7 @@ public class AuthController {
             return ResponseEntity.ok(jwtResponse);
         } catch (Exception e) {
             log.error("Erro no login para usuário {}: {}", loginRequest.getUsername(), e.getMessage());
-            return ResponseEntity.badRequest().body("Credenciais inválidas");
+            return ResponseEntity.status(401).body("Credenciais inválidas");
         }
     }
 }
