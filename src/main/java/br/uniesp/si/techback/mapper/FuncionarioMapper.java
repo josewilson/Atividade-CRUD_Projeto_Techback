@@ -16,6 +16,11 @@ public class FuncionarioMapper {
         funcionario.setId(dto.getId());
         funcionario.setNome(dto.getNome());
         funcionario.setCargo(dto.getCargo());
+        funcionario.setUf(dto.getUf());
+        funcionario.setLocalidade(dto.getLocalidade());
+        funcionario.setBairro(dto.getBairro());
+        funcionario.setLogradouro(dto.getLogradouro());
+        funcionario.setCep(dto.getCep());
 
         return funcionario;
     }
@@ -29,6 +34,11 @@ public class FuncionarioMapper {
         dto.setId(entity.getId());
         dto.setNome(entity.getNome());
         dto.setCargo(entity.getCargo());
+        dto.setUf(entity.getUf());
+        dto.setLocalidade(entity.getLocalidade());
+        dto.setBairro(entity.getBairro());
+        dto.setLogradouro(entity.getLogradouro());
+        dto.setCep(entity.getCep());
 
         return dto;
     }

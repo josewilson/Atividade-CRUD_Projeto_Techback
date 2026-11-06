@@ -19,4 +19,12 @@ public class FuncionarioDTO {
 
     @NotBlank(message = "O cargo é obrigatório")
     private String cargo;
+
+    @NotBlank(message = "O cep é obrigatório")
+    private String cep;
+
+    private String logradouro;
+    private String bairro;
+    private String localidade;
+    private String uf;
 }

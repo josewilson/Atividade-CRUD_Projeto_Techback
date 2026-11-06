@@ -49,13 +49,13 @@ class FuncionarioControllerTest {
     void setUp() {
         funcionarioDTO = FuncionarioDTO.builder()
                 .nome("João Silva")
-                .cargo("Desenvolvedor")
+                .cargo("Desenvolvedor").cep("58000000")
                 .build();
 
         funcionarioSalvoDTO = FuncionarioDTO.builder()
                 .id(1L)
                 .nome("João Silva")
-                .cargo("Desenvolvedor")
+                .cargo("Desenvolvedor").cep("58000000")
                 .build();
     }
 
@@ -99,7 +99,7 @@ class FuncionarioControllerTest {
     @Test
     @DisplayName("Deve criar um novo funcionário")
     void deveCriarNovoFuncionario() throws Exception {
-        when(funcionarioService.salvar(any(FuncionarioDTO.class))).thenReturn(funcionarioSalvoDTO);
+        when(funcionarioService.incluir(any(FuncionarioDTO.class))).thenReturn(funcionarioSalvoDTO);
 
         mockMvc.perform(post("/funcionarios")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -131,7 +131,7 @@ class FuncionarioControllerTest {
         FuncionarioDTO funcionarioAtualizado = FuncionarioDTO.builder()
                 .id(1L)
                 .nome("João Silva Atualizado")
-                .cargo("Desenvolvedor Sênior")
+                .cargo("Desenvolvedor Sênior").cep("58000000")
                 .build();
 
         when(funcionarioService.atualizar(eq(1L), any(FuncionarioDTO.class))).thenReturn(funcionarioAtualizado);
@@ -189,7 +189,7 @@ class FuncionarioControllerTest {
     @Test
     @DisplayName("Deve criar funcionário com dados válidos")
     void deveCriarFuncionarioComDadosValidos() throws Exception {
-        when(funcionarioService.salvar(any(FuncionarioDTO.class))).thenReturn(funcionarioSalvoDTO);
+        when(funcionarioService.incluir(any(FuncionarioDTO.class))).thenReturn(funcionarioSalvoDTO);
 
         mockMvc.perform(post("/funcionarios")
                         .contentType(MediaType.APPLICATION_JSON)

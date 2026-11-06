@@ -31,6 +31,9 @@ class FuncionarioServiceTest {
     @Mock
     private FuncionarioMapper funcionarioMapper;
 
+    @Mock
+    private br.uniesp.si.techback.client.ViaCepClient viaCepClient;
+
     @InjectMocks
     private FuncionarioService funcionarioService;
 
@@ -199,5 +202,32 @@ class FuncionarioServiceTest {
                 .hasMessage("Falha ao excluir: funcionário não encontrado com o ID: 999");
         verify(funcionarioRepository).existsById(999L);
         verify(funcionarioRepository, never()).deleteById(999L);
+    }
+
+    @Test
+    @DisplayName("Deve incluir funcionário preenchendo o endereço pelo CEP")
+    void deveIncluirComEnderecoDoViaCep() {
+        FuncionarioDTO dto = FuncionarioDTO.builder().nome("Maria").cargo("Analista").cep("58000000").build();
+        var endereco = new br.uniesp.si.techback.dto.ViaCepResponseDTO();
+        endereco.setCep("58000-000");
+        endereco.setLogradouro("Rua A");
+        when(viaCepClient.buscarEnderecoPorCep("58000000")).thenReturn(endereco);
+        when(funcionarioMapper.toEntity(dto)).thenReturn(funcionario);
+        when(funcionarioRepository.save(funcionario)).thenReturn(funcionario);
+        when(funcionarioMapper.toDTO(funcionario)).thenReturn(dto);
+
+        funcionarioService.incluir(dto);
+
+        assertThat(dto.getLogradouro()).isEqualTo("Rua A");
+    }
+
+    @Test
+    @DisplayName("Deve falhar ao incluir com CEP inexistente")
+    void deveFalharComCepInexistente() {
+        FuncionarioDTO dto = FuncionarioDTO.builder().nome("Maria").cargo("Analista").cep("00000000").build();
+        when(viaCepClient.buscarEnderecoPorCep("00000000")).thenReturn(new br.uniesp.si.techback.dto.ViaCepResponseDTO());
+
+        assertThatThrownBy(() -> funcionarioService.incluir(dto)).hasMessage("CEP inválido ou não encontrado");
+        verify(funcionarioRepository, never()).save(any());
     }
 }

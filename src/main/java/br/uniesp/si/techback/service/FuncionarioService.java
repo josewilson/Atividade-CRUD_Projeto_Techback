@@ -1,6 +1,8 @@
 package br.uniesp.si.techback.service;
 
+import br.uniesp.si.techback.client.ViaCepClient;
 import br.uniesp.si.techback.dto.FuncionarioDTO;
+import br.uniesp.si.techback.dto.ViaCepResponseDTO;
 import br.uniesp.si.techback.mapper.FuncionarioMapper;
 import br.uniesp.si.techback.repository.FuncionarioRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +16,23 @@ public class FuncionarioService {
 
     private final FuncionarioRepository funcionarioRepository;
     private final FuncionarioMapper funcionarioMapper;
+    private final ViaCepClient viaCepClient;
 
     public List<FuncionarioDTO> listar() {
         return funcionarioRepository.findAll().stream().map(funcionarioMapper::toDTO).toList();
+    }
+
+    /** Cria o funcionário preenchendo o endereço pelo CEP (ViaCEP). */
+    public FuncionarioDTO incluir(FuncionarioDTO dto) {
+        ViaCepResponseDTO endereco = viaCepClient.buscarEnderecoPorCep(dto.getCep());
+        if (endereco == null || endereco.getCep() == null) {
+            throw new RuntimeException("CEP inválido ou não encontrado");
+        }
+        dto.setLogradouro(endereco.getLogradouro());
+        dto.setBairro(endereco.getBairro());
+        dto.setLocalidade(endereco.getLocalidade());
+        dto.setUf(endereco.getUf());
+        return salvar(dto);
     }
 
     public FuncionarioDTO buscarPorId(Long id) {

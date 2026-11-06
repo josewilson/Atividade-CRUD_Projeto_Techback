@@ -45,7 +45,7 @@ public class FuncionarioController {
     public ResponseEntity<FuncionarioDTO> criar(@Valid @RequestBody FuncionarioDTO funcionarioDTO) {
         log.info("Recebida requisição para criar novo funcionário");
         try {
-            FuncionarioDTO funcionarioSalvo = funcionarioService.salvar(funcionarioDTO);
+            FuncionarioDTO funcionarioSalvo = funcionarioService.incluir(funcionarioDTO);
             log.info("Funcionário criado com sucesso. ID: {}", funcionarioSalvo.getId());
 
             URI location = ServletUriComponentsBuilder
