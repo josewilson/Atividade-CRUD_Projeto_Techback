@@ -1,199 +1,129 @@
-# Techback - Backend 1 Uniesp
+# 🎬 Techback
 
-Projeto Spring Boot desenvolvido como parte da disciplina de Backend 1 da Uniesp, demonstrando boas práticas de desenvolvimento Java com arquitetura em camadas e testes abrangentes.
+API REST em **Spring Boot** com CRUD de Filmes, Funcionários e Usuários, autenticação **JWT** e controle de concorrência por **lock otimista**.
+Projeto da disciplina *Tecnologias para Backend (Spring Boot)* — UNIESP, sobre a base do Prof. Rodrigo Fujioka.
 
-## 🚀 Tecnologias Utilizadas
+![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.10-6DB33F?logo=springboot&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring%20Security-JWT-6DB33F?logo=springsecurity&logoColor=white)
+![H2](https://img.shields.io/badge/Database-H2-1021FF)
+![Maven](https://img.shields.io/badge/Build-Maven-C71A36?logo=apachemaven&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-96%20passing-brightgreen)
+![OpenAPI](https://img.shields.io/badge/OpenAPI-Swagger%20UI-85EA2D?logo=swagger&logoColor=black)
 
-- **Java 21** - Última versão LTS do Java
-- **Spring Boot 3.5.10** - Framework principal
-- **Spring Data JPA** - Persistência de dados
-- **H2 Database** - Banco de dados em memória para desenvolvimento
-- **SpringDoc OpenAPI 2.8.6** - Documentação de API
-- **Lombok 1.18.32** - Redução de código boilerplate
-- **JUnit 5** - Framework de testes
-- **Mockito** - Framework para mocks em testes
-- **JaCoCo** - Análise de cobertura de testes
+## ✨ Funcionalidades
 
-## 📁 Estrutura do Projeto
+- CRUD completo de **Filmes**, **Funcionários** e **Usuários**
+- Autenticação **stateless com JWT** (`/auth/login`) e senhas com **BCrypt**
+- **Lock otimista** (`@Version`) com resposta `409 Conflict` em edições concorrentes
+- Validação de entrada (Bean Validation) e tratamento global de erros
+- Documentação interativa via **Swagger UI**
+- Testes de controller, service, repository e mapper
+
+## 🏗️ Arquitetura
+
+```mermaid
+flowchart LR
+    C[Cliente] -->|HTTP + Bearer JWT| F[AuthTokenFilter]
+    F --> SC[SecurityConfig]
+    SC --> CT[Controllers]
+    CT -->|DTO| SV[Services]
+    SV --> MP[Mappers]
+    SV --> RP[Repositories]
+    RP -->|JPA/Hibernate| DB[(H2)]
+    CT -. erros .-> EH[GlobalExceptionHandler]
+    AC[AuthController] --> JU[JwtUtils]
+    F --> JU
+    F --> UD[UserDetailsServiceImpl] --> RP
+```
+
+**Fluxo de autenticação**
+
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant A as AuthController
+    participant J as JwtUtils
+    participant F as AuthTokenFilter
+    participant R as Recurso protegido
+    C->>A: POST /auth/login (username, password)
+    A->>J: gera token (HS256)
+    A-->>C: 200 {token}
+    C->>F: GET /filmes (Authorization: Bearer token)
+    F->>J: valida token
+    F->>R: SecurityContext preenchido
+    R-->>C: 200 / 401
+```
+
+### Estrutura de pastas
 
 ```
 src/main/java/br/uniesp/si/techback/
-├── controller/          # Camada de controle REST
-│   └── FilmeController.java
-├── service/            # Camada de lógica de negócio
-│   └── FilmeService.java
-├── repository/         # Camada de acesso a dados
-│   └── FilmeRepository.java
-├── model/             # Entidades JPA
-│   └── Filme.java
-├── dto/               # Data Transfer Objects
-│   └── FilmeDTO.java
-├── mapper/            # Conversores entre Entity e DTO
-│   └── FilmeMapper.java
+├── controller/   # REST: Auth, Filme, Funcionario, Usuario + GlobalExceptionHandler
+├── service/      # Regras de negócio + UserDetailsServiceImpl
+├── repository/   # Spring Data JPA
+├── model/        # Entidades JPA (Usuario, Filme, Funcionario, ...)
+├── dto/          # Objetos de transferência e validação
+├── mapper/       # Entity <-> DTO
+├── security/     # JwtUtils, AuthTokenFilter, SecurityConfig
 └── TechbackApplication.java
-
-src/test/java/br/uniesp/si/techback/
-├── controller/        # Testes do controller
-├── service/          # Testes do service
-├── repository/       # Testes do repository
-└── mapper/           # Testes do mapper
+src/test/java/... # controller, service, repository, mapper
 ```
 
-## 🎯 Funcionalidades
+## 🚀 Como executar
 
-API REST para gerenciamento de filmes com as seguintes operações:
+Requisitos: **JDK 21** (o Maven Wrapper já vem no projeto).
 
-- **GET /filmes** - Listar todos os filmes
-- **GET /filmes/{id}** - Buscar filme por ID
-- **POST /filmes** - Criar novo filme
-- **PUT /filmes/{id}** - Atualizar filme existente
-- **DELETE /filmes/{id}** - Excluir filme
+```bash
+# 1. Defina o segredo JWT (mínimo 32 caracteres) — nunca versione este valor
+export JWT_SECRET="$(openssl rand -base64 48)"
 
-### Modelo de Dados
+# 2. Suba a aplicação
+./mvnw spring-boot:run
+```
 
-**FilmeDTO:**
-```json
-{
-  "id": 1,
-  "titulo": "Título do Filme",
-  "sinopse": "Sinopse do filme",
-  "dataLancamento": "2023-01-01",
-  "genero": "Ação",
-  "duracaoMinutos": 120,
-  "classificacaoIndicativa": "12 anos"
-}
+No PowerShell: `$env:JWT_SECRET = "<segredo>"; .\mvnw spring-boot:run`
+
+| Variável | Obrigatória | Padrão | Descrição |
+|---|---|---|---|
+| `JWT_SECRET` | ✅ | — | Chave de assinatura HS256 |
+| `JWT_EXPIRATION_MS` | ❌ | `3600000` | Validade do token (1 h) |
+| `H2_CONSOLE_ENABLED` | ❌ | `false` | Habilita o console H2 em `/h2/login` |
+
+Swagger UI: <http://localhost:8080/swagger-ui/index.html>
+
+## 🔐 Endpoints
+
+| Método | Rota | Acesso |
+|---|---|---|
+| POST | `/auth/login` | Público |
+| POST | `/usuarios` | Público (cadastro) |
+| GET/PUT/DELETE | `/usuarios/**` | Autenticado |
+| CRUD | `/filmes`, `/funcionarios` | Autenticado |
+
+```bash
+TOKEN=$(curl -s -X POST localhost:8080/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"<senha>"}' | jq -r .token)
+
+curl -H "Authorization: Bearer $TOKEN" localhost:8080/filmes
 ```
 
 ## 🧪 Testes
 
-O projeto possui cobertura de testes abrangente:
-
-- **FilmeRepository**: 100% de cobertura
-- **FilmeService**: 80.9% de cobertura  
-- **FilmeController**: 83.2% de cobertura
-- **FilmeMapper**: 100% de cobertura
-
-### Executando os Testes
-
 ```bash
-# Executar todos os testes
-mvn test
-
-# Executar testes com relatório de cobertura
-mvn test jacoco:report
-
-# Visualizar relatório de cobertura
-# Abra: target/site/jacoco/index.html
+./mvnw test
 ```
 
-## 🏗️ Arquitetura e Boas Práticas
+Relatório de cobertura (JaCoCo) em `target/site/jacoco/index.html`.
 
-### Separação de Responsabilidades
-- **Controller**: Responsável por tratar requisições HTTP e validações
-- **Service**: Contém a lógica de negócio e regras do domínio
-- **Repository**: Interface para acesso e persistência de dados
-- **DTO**: Objeto de transferência de dados para API
-- **Mapper**: Conversão entre entidades e DTOs
+## 🔒 Segurança
 
-### Validação
-- Validação de dados na camada de controller usando Bean Validation
-- Título do filme é obrigatório (`@NotBlank`)
+- Segredo JWT somente via variável de ambiente
+- Rotas de usuários protegidas; senha nunca é retornada nas respostas
+- Console H2 desligado por padrão
+- Troque a senha do usuário `admin` do `data.sql` antes de qualquer deploy
 
-### Tratamento de Exceções
-- Logs informativos para todas as operações
-- Tratamento adequado de recursos não encontrados
-- Retorno de status HTTP apropriados
+## 👥 Integrantes
 
-### Logging
-- Logs em diferentes níveis (INFO, DEBUG, WARN, ERROR)
-- Informações contextuais para facilitar debugging
-
-## 🚀 Como Executar
-
-### Pré-requisitos
-- Java 21 ou superior
-- Maven 3.6 ou superior
-
-### Execução
-
-```bash
-# Clonar o projeto
-git clone <repositório>
-
-# Entrar no diretório
-cd tecback
-
-# Compilar e executar
-mvn spring-boot:run
-```
-
-A aplicação estará disponível em: `http://localhost:8080`
-
-### Documentação da API
-
-A documentação OpenAPI/Swagger está disponível em:
-`http://localhost:8080/swagger-ui/index.html)`
-
-### Console H2
-
-O console do banco H2 está disponível em:
-`http://localhost:8080/h2/login`
-
-**Configurações de conexão:**
-- URL: `jdbc:h2:file:~/teckback20262`
-- User Name: `sa`
-- Password: 
-
-## 📊 Métricas de Qualidade
-
-- **Cobertura de Testes**: >80% nas camadas principais
-- **Code Quality**: Segue padrões e convenções Java
-- **Arquitetura**: Limpa, com separação clara de responsabilidades
-- **Documentação**: API auto-documentada com OpenAPI
-
-## 🔧 Desenvolvimento
-
-### Comandos Úteis
-
-```bash
-# Compilar projeto
-mvn compile
-
-# Executar testes
-mvn test
-
-# Gerar relatório de cobertura
-mvn jacoco:report
-
-# Limpar projeto
-mvn clean
-
-# Empacar aplicação
-mvn package
-
-# Verificar dependências
-mvn dependency:tree
-```
-
-### Configuração de Desenvolvimento
-
-O projeto utiliza perfil de teste (`application-test.properties`) com:
-- Banco H2 em memória
-- Logs em nível DEBUG
-- Criação automática de schema
-
-## 📝 Próximos Passos
-
-Sugestões para evolução do projeto:
-
-1. **Autenticação e Autorização**: Implementar Spring Security
-2. **Validações Avançadas**: Adicionar validações de negócio mais complexas
-3. **Paginação**: Implementar paginação nas listagens
-4. **Filtros**: Adicionar filtros por gênero, data, etc.
-5. **Cache**: Implementar cache para consultas frequentes
-6. **Integração**: Conectar com banco de dados production-ready
-7. **Monitoramento**: Adicionar métricas e health checks
-
-## 👨‍💻 Autor
-
-Desenvolvido como parte da disciplina de Backend 1 da Uniesp, demonstrando conceitos de desenvolvimento Java Enterprise com Spring Boot.
+Veja [INTEGRANTES.md](INTEGRANTES.md).
