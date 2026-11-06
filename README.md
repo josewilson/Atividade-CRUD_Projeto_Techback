@@ -133,3 +133,9 @@ Relatório de cobertura (JaCoCo) em `target/site/jacoco/index.html`.
 ## 👥 Integrantes
 
 Veja [INTEGRANTES.md](INTEGRANTES.md).
+
+## 🧾 Origem e autoria
+
+- **Base da disciplina:** estrutura inicial, módulos Filme/Funcionario e a maior parte do histórico de commits vêm do material do Prof. Rodrigo Fujioka (Backend 1 – Uniesp).
+- **Trabalho da equipe:** módulos de domínio, segurança e infraestrutura adicionados pelos integrantes listados em [INTEGRANTES.md](INTEGRANTES.md).
+- **José Wilson Alves de Souza:** líder técnico da equipe; responsável pelos módulos Usuários, Infraestrutura e MetodoPagamento.
