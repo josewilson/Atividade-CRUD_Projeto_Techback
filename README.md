@@ -6,7 +6,7 @@ Projeto da disciplina *Tecnologias para Backend (Spring Boot)* — UNIESP, sobre
 ![Java](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.10-6DB33F?logo=springboot&logoColor=white)
 ![Spring Security](https://img.shields.io/badge/Spring%20Security-JWT-6DB33F?logo=springsecurity&logoColor=white)
-![H2](https://img.shields.io/badge/Database-H2-1021FF)
+![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-4169E1)
 ![Maven](https://img.shields.io/badge/Build-Maven-C71A36?logo=apachemaven&logoColor=white)
 [![CI](https://github.com/josewilson/Atividade-CRUD_Projeto_Techback/actions/workflows/ci.yml/badge.svg)](https://github.com/josewilson/Atividade-CRUD_Projeto_Techback/actions/workflows/ci.yml)
 ![OpenAPI](https://img.shields.io/badge/OpenAPI-Swagger%20UI-85EA2D?logo=swagger&logoColor=black)
@@ -30,7 +30,7 @@ flowchart LR
     CT -->|DTO| SV[Services]
     SV --> MP[Mappers]
     SV --> RP[Repositories]
-    RP -->|JPA/Hibernate| DB[(H2)]
+    RP -->|JPA/Hibernate| DB[(PostgreSQL)]
     CT -. erros .-> EH[GlobalExceptionHandler]
     AC[AuthController] --> JU[JwtUtils]
     F --> JU
@@ -72,23 +72,28 @@ src/test/java/... # controller, service, repository, mapper
 
 ## 🚀 Como executar
 
-Requisitos: **JDK 21** (o Maven Wrapper já vem no projeto).
+### Docker (recomendado)
 
 ```bash
-# 1. Defina o segredo JWT (mínimo 32 caracteres) — nunca versione este valor
-export JWT_SECRET="$(openssl rand -base64 48)"
-
-# 2. Suba a aplicação
-./mvnw spring-boot:run
+cp .env.example .env   # preencha JWT_SECRET (openssl rand -hex 64), DB_PASSWORD e ADMIN_PASSWORD
+docker compose up --build
 ```
 
-No PowerShell: `$env:JWT_SECRET = "<segredo>"; .\mvnw spring-boot:run`
+A API sobe em <http://localhost:8080>, com PostgreSQL 16 e migrações **Flyway** aplicadas automaticamente. O usuário `admin` é criado na primeira subida com a senha de `ADMIN_PASSWORD`.
+
+### Local com H2 (perfil `dev`)
+
+```bash
+export JWT_SECRET="$(openssl rand -hex 64)"
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
 
 | Variável | Obrigatória | Padrão | Descrição |
 |---|---|---|---|
-| `JWT_SECRET` | ✅ | — | Chave de assinatura HS256 |
+| `JWT_SECRET` | ✅ | — | Chave de assinatura HS256 (mín. 32 caracteres) |
+| `DB_URL`, `DB_USER`, `DB_PASSWORD` | ✅ (exceto `dev`) | — | Conexão PostgreSQL |
 | `JWT_EXPIRATION_MS` | ❌ | `3600000` | Validade do token (1 h) |
-| `H2_CONSOLE_ENABLED` | ❌ | `false` | Habilita o console H2 em `/h2/login` |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | ❌ | `admin.com` / — | Admin inicial (só criado se a senha for definida) |
 
 Swagger UI: <http://localhost:8080/swagger-ui/index.html>
 
@@ -99,7 +104,8 @@ Swagger UI: <http://localhost:8080/swagger-ui/index.html>
 | POST | `/auth/login` | Público |
 | POST | `/usuarios` | Público (cadastro) |
 | GET/PUT/DELETE | `/usuarios/**` | Autenticado |
-| CRUD | `/filmes`, `/funcionarios` | Autenticado |
+| CRUD | `/filmes` | Autenticado |
+| CRUD | `/funcionarios` | Somente `ADMIN` |
 
 ```bash
 TOKEN=$(curl -s -X POST localhost:8080/auth/login \
@@ -112,7 +118,7 @@ curl -H "Authorization: Bearer $TOKEN" localhost:8080/filmes
 ## 🧪 Testes
 
 ```bash
-./mvnw test
+./mvnw test   # inclui testes de integração com Testcontainers (requer Docker)
 ```
 
 Relatório de cobertura (JaCoCo) em `target/site/jacoco/index.html`.
@@ -121,8 +127,8 @@ Relatório de cobertura (JaCoCo) em `target/site/jacoco/index.html`.
 
 - Segredo JWT somente via variável de ambiente
 - Rotas de usuários protegidas; senha nunca é retornada nas respostas
-- Console H2 desligado por padrão
-- Troque a senha do usuário `admin` do `data.sql` antes de qualquer deploy
+- Schema versionado com Flyway (`ddl-auto=validate`); console H2 só no perfil `dev`
+- Admin criado via `ADMIN_PASSWORD`; nenhuma senha ou hash versionado
 
 ## 👥 Integrantes
 
